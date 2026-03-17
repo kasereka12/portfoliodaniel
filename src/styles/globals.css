@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[#030712] text-slate-100 font-sans overflow-x-hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar        { width: 5px; }
+  ::-webkit-scrollbar-track  { background: #0F172A; }
+  ::-webkit-scrollbar-thumb  { background: #06B6D4; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #22D3EE; }
+
+  ::selection {
+    background: rgba(6, 182, 212, 0.3);
+    color: #fff;
+  }
+}
+
+/* ─── Components ────────────────────────────────────────── */
+@layer components {
+
+  /* Overlay scanlines sur toute la page */
+  .scanlines::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.025) 2px,
+      rgba(0, 0, 0, 0.025) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Grille de fond subtile */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Texte gradient cyan → purple */
+  .gradient-text {
+    @apply bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent;
+  }
+
+  /* Glow borders */
+  .glow-border {
+    border: 1px solid rgba(6, 182, 212, 0.25);
+    box-shadow:
+      0 0 12px rgba(6, 182, 212, 0.08),
+      inset 0 0 12px rgba(6, 182, 212, 0.03);
+  }
+
+  .glow-border-purple {
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    box-shadow:
+      0 0 12px rgba(168, 85, 247, 0.08),
+      inset 0 0 12px rgba(168, 85, 247, 0.03);
+  }
+
+  /* Neon text shadows */
+  .text-glow-cyan {
+    text-shadow:
+      0 0 10px rgba(6, 182, 212, 0.9),
+      0 0 30px rgba(6, 182, 212, 0.4),
+      0 0 60px rgba(6, 182, 212, 0.2);
+  }
+
+  .text-glow-purple {
+    text-shadow:
+      0 0 10px rgba(168, 85, 247, 0.9),
+      0 0 30px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Curseur terminal clignotant */
+  .cursor-blink::after {
+    content: '█';
+    @apply text-cyan-400 animate-blink ml-0.5;
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────────────── */
+@layer utilities {
+  .animation-delay-100 { animation-delay: 0.1s; }
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-400 { animation-delay: 0.4s; }
+  .animation-delay-600 { animation-delay: 0.6s; }
+}
