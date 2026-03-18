@@ -40,7 +40,7 @@ const SOCIAL_LINKS = [
 ]
 
 const Contact = () => (
-  <section id="contact" className="py-24 px-4 bg-[#030712] relative overflow-hidden">
+  <section id="contact" className="py-24 px-4 bg-[#09090B] relative overflow-hidden">
     {/* Dégradé radial centré */}
     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.07),transparent_65%)] pointer-events-none" />
 
@@ -130,7 +130,7 @@ const Contact = () => (
               href={href}
               target={href.startsWith('mailto') ? '_self' : '_blank'}
               rel="noopener noreferrer"
-              className={`flex items-center gap-4 p-4 bg-[#0B1120] border border-slate-700/50
+              className={`flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800/60
                 ${colorBg} rounded-xl transition-all duration-300 group`}
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}

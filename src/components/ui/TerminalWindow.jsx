@@ -25,11 +25,11 @@ const TerminalWindow = ({
 
   return (
     <Wrapper
-      className={`rounded-xl overflow-hidden bg-[#0B1120] border border-slate-700/60 shadow-2xl ${className}`}
+      className={`rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800/60 shadow-2xl ${className}`}
       {...motionProps}
     >
       {/* Barre de titre */}
-      <div className="flex items-center gap-2 px-4 py-3 bg-[#141F35] border-b border-slate-700/60">
+      <div className="flex items-center gap-2 px-4 py-3 bg-[#141F35] border-b border-zinc-800/60">
         <div className="flex gap-1.5">
           <span className="w-3 h-3 rounded-full bg-red-500/80   block" />
           <span className="w-3 h-3 rounded-full bg-yellow-500/80 block" />

@@ -9,18 +9,18 @@
   }
 
   body {
-    @apply bg-[#030712] text-slate-100 font-sans overflow-x-hidden;
+    @apply bg-[#09090B] text-slate-100 font-sans overflow-x-hidden;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scrollbar personnalisée */
-  ::-webkit-scrollbar        { width: 5px; }
-  ::-webkit-scrollbar-track  { background: #0F172A; }
-  ::-webkit-scrollbar-thumb  { background: #06B6D4; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #22D3EE; }
+  /* Scrollbar */
+  ::-webkit-scrollbar        { width: 4px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #06B6D4; }
 
   ::selection {
-    background: rgba(6, 182, 212, 0.3);
+    background: rgba(6, 182, 212, 0.25);
     color: #fff;
   }
 }
@@ -28,75 +28,55 @@
 /* ─── Components ────────────────────────────────────────── */
 @layer components {
 
-  /* Overlay scanlines sur toute la page */
-  .scanlines::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.025) 2px,
-      rgba(0, 0, 0, 0.025) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
-  }
-
-  /* Grille de fond subtile */
+  /* Grille de fond très subtile — uniquement dans les sections qui l'activent */
   .bg-grid {
     background-image:
-      linear-gradient(rgba(6, 182, 212, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px;
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
   }
 
-  /* Texte gradient cyan → purple */
+  /* Gradient text blanc → gris clair (look moderne) */
   .gradient-text {
-    @apply bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent;
   }
 
-  /* Glow borders */
-  .glow-border {
-    border: 1px solid rgba(6, 182, 212, 0.25);
-    box-shadow:
-      0 0 12px rgba(6, 182, 212, 0.08),
-      inset 0 0 12px rgba(6, 182, 212, 0.03);
+  /* Gradient text cyan → purple */
+  .gradient-text-color {
+    @apply bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent;
   }
 
-  .glow-border-purple {
-    border: 1px solid rgba(168, 85, 247, 0.25);
-    box-shadow:
-      0 0 12px rgba(168, 85, 247, 0.08),
-      inset 0 0 12px rgba(168, 85, 247, 0.03);
+  /* Bordure subtile façon glassmorphism */
+  .glass-border {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
   }
 
-  /* Neon text shadows */
-  .text-glow-cyan {
-    text-shadow:
-      0 0 10px rgba(6, 182, 212, 0.9),
-      0 0 30px rgba(6, 182, 212, 0.4),
-      0 0 60px rgba(6, 182, 212, 0.2);
+  /* Card surfaces */
+  .card {
+    @apply bg-zinc-900 border border-zinc-800 rounded-xl;
   }
+}
 
-  .text-glow-purple {
-    text-shadow:
-      0 0 10px rgba(168, 85, 247, 0.9),
-      0 0 30px rgba(168, 85, 247, 0.4);
-  }
+/* ─── Keyframes custom ──────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
 
-  /* Curseur terminal clignotant */
-  .cursor-blink::after {
-    content: '█';
-    @apply text-cyan-400 animate-blink ml-0.5;
-  }
+@keyframes blob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50%       { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
 }
 
 /* ─── Utilities ─────────────────────────────────────────── */
 @layer utilities {
+  .animate-blink  { animation: blink 1.1s step-end infinite; }
+  .animate-blob   { animation: blob 8s ease-in-out infinite; }
+
   .animation-delay-100 { animation-delay: 0.1s; }
   .animation-delay-200 { animation-delay: 0.2s; }
   .animation-delay-400 { animation-delay: 0.4s; }
-  .animation-delay-600 { animation-delay: 0.6s; }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
 }

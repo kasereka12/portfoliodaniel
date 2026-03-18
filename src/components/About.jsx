@@ -1,27 +1,57 @@
-import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { motion, useMotionValue, useInView, animate } from 'framer-motion'
 import { Rocket, Code2, Calendar, Coffee, MapPin, CheckCircle2, GraduationCap, Award } from 'lucide-react'
 import TerminalWindow from './ui/TerminalWindow'
 import SectionHeader  from './ui/SectionHeader'
 import { personalInfo, aboutStats, aboutDescription } from '../data/data'
 
-// Map nom d'icône → composant Lucide
 const ICON_MAP = { Rocket, Code2, Calendar, Coffee, GraduationCap, Award }
 
-/** Carte de statistique individuelle */
+/** Chiffre qui compte de 0 jusqu'à la valeur cible */
+const AnimatedNumber = ({ value }) => {
+  const ref        = useRef(null)
+  const isInView   = useInView(ref, { once: true })
+  const count      = useMotionValue(0)
+  const numericVal = parseInt(value)           // ex. "20+" → 20, "∞" → NaN
+
+  useEffect(() => {
+    if (!isInView || isNaN(numericVal)) return
+    const ctrl = animate(count, numericVal, {
+      duration: 1.4,
+      ease:     'easeOut',
+      onUpdate: (v) => {
+        if (ref.current) ref.current.textContent = Math.round(v) + (value.includes('+') ? '+' : '')
+      },
+    })
+    return ctrl.stop
+  }, [isInView])
+
+  return (
+    <span ref={ref} className="font-mono text-2xl font-bold text-white leading-none">
+      {isNaN(numericVal) ? value : '0'}
+    </span>
+  )
+}
+
+/** Carte statistique avec compteur animé */
 const StatCard = ({ stat, index }) => {
   const Icon = ICON_MAP[stat.icon] ?? Code2
   return (
     <motion.div
-      className="flex flex-col items-center justify-center gap-1.5 p-4 bg-[#0B1120] rounded-xl border border-slate-700/50 hover:border-cyan-400/30 transition-all duration-300 text-center group"
+      className="flex flex-col items-center justify-center gap-1.5 p-4 bg-zinc-900 rounded-xl
+                 border border-zinc-800/60 hover:border-cyan-400/30 transition-all duration-300
+                 text-center group cursor-default"
       initial={{ opacity: 0, scale: 0.85 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.08, duration: 0.4 }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
       viewport={{ once: true }}
     >
-      <Icon className="text-cyan-400 group-hover:scale-110 transition-transform" size={18} />
-      <span className="font-mono text-2xl font-bold text-white leading-none">{stat.value}</span>
-      <span className="text-slate-500 text-xs">{stat.label}</span>
+      <motion.div whileHover={{ scale: 1.15, rotate: 8 }} transition={{ type: 'spring', stiffness: 300 }}>
+        <Icon className="text-cyan-400" size={18} />
+      </motion.div>
+      <AnimatedNumber value={stat.value} />
+      <span className="text-zinc-500 text-xs">{stat.label}</span>
     </motion.div>
   )
 }
@@ -30,7 +60,7 @@ const About = () => {
   const quickStack = ['React JS', 'Angular', 'Flutter', 'Spring Boot', '.NET', 'Django', 'Oracle', 'MongoDB', 'Docker', 'Kubernetes', 'AWS', 'Azure']
 
   return (
-    <section id="about" className="py-24 px-4 bg-[#030712] relative overflow-hidden">
+    <section id="about" className="py-24 px-4 bg-[#09090B] relative overflow-hidden">
       {/* Dégradé décoratif haut-droite */}
       <div className="absolute top-0 right-0 w-1/2 h-full
         bg-[radial-gradient(ellipse_at_top_right,rgba(168,85,247,0.05),transparent_65%)]
@@ -124,7 +154,7 @@ const About = () => {
                 {quickStack.map((tech) => (
                   <span
                     key={tech}
-                    className="px-3 py-1 font-mono text-xs bg-[#0B1120] text-slate-300 border border-slate-700/50 rounded-lg hover:border-cyan-400/50 hover:text-cyan-300 transition-all duration-200 cursor-default"
+                    className="px-3 py-1 font-mono text-xs bg-zinc-900 text-slate-300 border border-zinc-800/60 rounded-lg hover:border-cyan-400/50 hover:text-cyan-300 transition-all duration-200 cursor-default"
                   >
                     {tech}
                   </span>

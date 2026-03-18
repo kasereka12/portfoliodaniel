@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useRef } from 'react'
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { ExternalLink, Github, Layers, ChevronRight } from 'lucide-react'
 import SectionHeader from './ui/SectionHeader'
 import { projects, personalInfo } from '../data/data'
@@ -11,23 +11,45 @@ const STATUS_STYLES = {
   Archivé:            'text-slate-400   border-slate-400/30   bg-slate-400/10',
 }
 
-/** Carte projet avec révélation au survol */
+/** Carte projet avec tilt 3D + révélation au survol */
 const ProjectCard = ({ project, index }) => {
   const [hovered, setHovered] = useState(false)
+  const cardRef  = useRef(null)
+
+  // Valeurs brutes de position souris
+  const rawX = useMotionValue(0)
+  const rawY = useMotionValue(0)
+
+  // Spring pour adoucir le tilt
+  const x = useSpring(rawX, { stiffness: 150, damping: 20 })
+  const y = useSpring(rawY, { stiffness: 150, damping: 20 })
+
+  const rotateX = useTransform(y, [-0.5, 0.5], [7, -7])
+  const rotateY = useTransform(x, [-0.5, 0.5], [-7, 7])
+
+  const handleMouseMove = (e) => {
+    const rect = cardRef.current?.getBoundingClientRect()
+    if (!rect) return
+    rawX.set((e.clientX - rect.left) / rect.width  - 0.5)
+    rawY.set((e.clientY - rect.top)  / rect.height - 0.5)
+  }
+  const handleMouseLeave = () => { rawX.set(0); rawY.set(0); setHovered(false) }
 
   return (
     <motion.article
-      className={`relative bg-[#0B1120] rounded-2xl overflow-hidden border transition-all duration-300 group flex flex-col h-full ${
-        hovered
-          ? 'border-cyan-400/40 shadow-xl shadow-cyan-400/5'
-          : 'border-slate-700/50'
+      ref={cardRef}
+      className={`relative bg-zinc-900 rounded-2xl overflow-hidden border transition-colors duration-300 group flex flex-col h-full ${
+        hovered ? 'border-cyan-400/40' : 'border-zinc-800/60'
       }`}
+      style={{ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 1000 }}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
+      transition={{ delay: index * 0.08, duration: 0.5 }}
       viewport={{ once: true }}
+      whileHover={{ boxShadow: '0 25px 50px -12px rgba(6, 182, 212, 0.08)' }}
+      onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Numéro fantôme décoratif */}
       <span className="absolute top-4 right-4 font-mono text-6xl font-bold text-slate-800/25 select-none leading-none pointer-events-none">
@@ -39,7 +61,7 @@ const ProjectCard = ({ project, index }) => {
         {/* En-tête */}
         <div className="flex items-start justify-between mb-4 gap-3">
           <div className={`p-2.5 rounded-xl transition-colors duration-300 ${
-            hovered ? 'bg-cyan-400/15 border border-cyan-400/30' : 'bg-[#141F35] border border-slate-700/50'
+            hovered ? 'bg-cyan-400/15 border border-cyan-400/30' : 'bg-[#141F35] border border-zinc-800/60'
           }`}>
             <Layers
               className={`transition-colors duration-300 ${hovered ? 'text-cyan-400' : 'text-slate-400'}`}
@@ -71,7 +93,7 @@ const ProjectCard = ({ project, index }) => {
           {project.techs.map((tech) => (
             <span
               key={tech}
-              className="px-2 py-0.5 font-mono text-xs bg-[#141F35] text-slate-400 rounded-md border border-slate-700/40"
+              className="px-2 py-0.5 font-mono text-xs bg-[#141F35] text-slate-400 rounded-md border border-zinc-800/40"
             >
               {tech}
             </span>
@@ -80,7 +102,7 @@ const ProjectCard = ({ project, index }) => {
 
         {/* Liens — fade-in au survol */}
         <motion.div
-          className="pt-4 border-t border-slate-700/50"
+          className="pt-4 border-t border-zinc-800/60"
           initial={false}
           animate={{ opacity: hovered ? 1 : 0.3, y: hovered ? 0 : 6 }}
           transition={{ duration: 0.2 }}
@@ -121,7 +143,7 @@ const ProjectCard = ({ project, index }) => {
 }
 
 const Projects = () => (
-  <section id="projects" className="py-24 px-4 bg-[#030712] relative overflow-hidden">
+  <section id="projects" className="py-24 px-4 bg-[#09090B] relative overflow-hidden">
     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(6,182,212,0.05),transparent_60%)] pointer-events-none" />
 
     <div className="max-w-7xl mx-auto relative">

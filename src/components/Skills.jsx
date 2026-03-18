@@ -92,19 +92,19 @@ const SkillBar = ({ name, level, colorKey, index }) => {
 }
 
 /** Carte de compétence */
-const SkillCard = ({ skill, extraClass = '' }) => {
+const SkillCard = ({ skill, extraClass = '', delay = 0 }) => {
   const Icon = ICON_MAP[skill.icon] ?? Code2
   const c    = COLORS[skill.color] ?? COLORS.cyan
 
   return (
     <motion.div
-      className={`relative bg-[#0B1120] rounded-2xl p-6 border ${c.border} ${c.hoverBorder} ${c.bg}
-        transition-all duration-300 hover:shadow-xl ${c.shadow} overflow-hidden ${extraClass}`}
-      initial={{ opacity: 0, y: 24 }}
+      className={`relative bg-zinc-900 rounded-2xl p-6 border ${c.border} ${c.hoverBorder} ${c.bg}
+        transition-colors duration-300 overflow-hidden ${extraClass}`}
+      initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      viewport={{ once: true }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6, boxShadow: '0 20px 40px -12px rgba(0,0,0,0.5)', transition: { duration: 0.25 } }}
+      viewport={{ once: true, margin: '-40px' }}
     >
       {/* Pastille décorative */}
       <div className={`absolute top-4 right-4 w-2 h-2 rounded-full ${c.dot} opacity-70`} />
@@ -137,7 +137,7 @@ const SkillCard = ({ skill, extraClass = '' }) => {
 }
 
 const Skills = () => (
-  <section id="skills" className="py-24 px-4 bg-[#050B18] relative overflow-hidden">
+  <section id="skills" className="py-24 px-4 bg-[#09090B] relative overflow-hidden">
     <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
 
     <div className="max-w-7xl mx-auto relative">
@@ -158,13 +158,14 @@ const Skills = () => (
             key={skill.id}
             skill={skill}
             extraClass={BENTO_CLASSES[i] ?? ''}
+            delay={i * 0.07}
           />
         ))}
       </div>
 
       {/* Certifications highlight */}
       <motion.div
-        className="mt-6 p-5 bg-[#0B1120] border border-slate-700/50 rounded-2xl
+        className="mt-6 p-5 bg-zinc-900 border border-zinc-800/60 rounded-2xl
           flex flex-wrap items-center gap-4"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -1,241 +1,208 @@
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Github, Linkedin, FileDown, ArrowDown } from 'lucide-react'
-import MatrixRain   from './MatrixRain'
-import GlitchText   from './ui/GlitchText'
+import { motion } from 'framer-motion'
+import { Github, Linkedin, FileDown, ArrowDown, MapPin } from 'lucide-react'
 import { personalInfo } from '../data/data'
 
-// Séquence de boot affichée avant le contenu principal
-const BOOT_LINES = [
-  '> NEXUS OS v2.4.1 — Initializing system...',
-  '> Mounting personality.sys          [  OK  ]',
-  '> Loading skills.json               [  OK  ]',
-  '> Compiling creativity daemon       [  OK  ]',
-  '> Establishing matrix connection    [  OK  ]',
-  '> Calibrating pixel renderer        [  OK  ]',
-  '> ─────────────────────────────────────────',
-  '> SYSTEM READY. Welcome.',
-]
-
-/** Composant qui tape une ligne caractère par caractère */
-const BootLine = ({ text, onDone }) => {
-  const [shown, setShown] = useState('')
-
-  useEffect(() => {
-    let i = 0
-    const iv = setInterval(() => {
-      setShown(text.slice(0, i + 1))
-      i++
-      if (i >= text.length) {
-        clearInterval(iv)
-        onDone?.()
-      }
-    }, 18)
-    return () => clearInterval(iv)
-  }, [text, onDone])
-
-  const isOk   = text.includes('[  OK  ]')
-  const isDone = text.includes('SYSTEM READY')
-
-  return (
-    <div className="font-mono text-xs sm:text-sm leading-6 flex gap-2">
-      <span className={isDone ? 'text-cyan-400' : isOk ? 'text-green-400' : 'text-slate-400'}>
-        {shown}
-      </span>
-      {shown.length < text.length && (
-        <span className="animate-blink text-cyan-400">█</span>
-      )}
-    </div>
-  )
+/* Stagger container */
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
+}
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 }
 
-const Hero = () => {
-  const [bootIndex,  setBootIndex]  = useState(0)   // ligne de boot en cours
-  const [showMain,   setShowMain]   = useState(false)
-
-  const handleLineDone = () => {
-    if (bootIndex < BOOT_LINES.length - 1) {
-      setTimeout(() => setBootIndex(i => i + 1), 120)
-    } else {
-      setTimeout(() => setShowMain(true), 500)
-    }
-  }
-
+/**
+ * Animation "masque" : chaque mot glisse vers le haut depuis derrière un overflow-hidden.
+ * Donne un effet typographique moderne façon editorial.
+ */
+const AnimatedName = ({ name }) => {
+  const words = name.split(' ')
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#030712]"
-    >
-      {/* ── Arrière-plan ── */}
-      <MatrixRain />
-      <div className="absolute inset-0 bg-grid opacity-25" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,rgba(6,182,212,0.07),transparent)]" />
-
-      {/* ── Séquence de boot ── */}
-      <AnimatePresence>
-        {!showMain && (
-          <motion.div
-            className="absolute inset-0 z-10 flex items-center justify-center p-6"
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.45 }}
+    <h1 className="text-5xl sm:text-7xl md:text-[5.5rem] font-bold leading-[1.08] tracking-tight mb-6">
+      {words.map((word, i) => (
+        <span key={word} className="inline-block overflow-hidden mr-[0.25em] last:mr-0">
+          <motion.span
+            className="inline-block gradient-text"
+            initial={{ y: '105%' }}
+            animate={{ y: 0 }}
+            transition={{
+              delay: 0.3 + i * 0.14,
+              duration: 0.75,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
-            <div className="w-full max-w-lg bg-[#0B1120]/90 backdrop-blur-sm border border-slate-700/60 rounded-xl shadow-2xl overflow-hidden">
-              {/* Barre titre fenêtre */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-[#141F35] border-b border-slate-700/60">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500/80    block" />
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 block" />
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500/80  block" />
-                <span className="ml-2 font-mono text-slate-500 text-xs">boot.sh — bash</span>
-              </div>
-
-              <div className="p-6 space-y-1 min-h-[200px]">
-                {BOOT_LINES.slice(0, bootIndex + 1).map((line, i) => (
-                  <BootLine
-                    key={i}
-                    text={line}
-                    onDone={i === bootIndex ? handleLineDone : undefined}
-                  />
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Contenu principal ── */}
-      <AnimatePresence>
-        {showMain && (
-          <motion.div
-            className="relative z-10 text-center px-4 max-w-5xl mx-auto w-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Badge disponibilité */}
-            {personalInfo.available && (
-              <motion.div
-                className="inline-flex items-center gap-2 px-3 py-1.5 mb-8 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono"
-                initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                animate={{ opacity: 1, scale: 1,   y: 0   }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Disponible pour de nouvelles opportunités
-              </motion.div>
-            )}
-
-            {/* Prompt + Nom */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0  }}
-              transition={{ delay: 0.15, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <p className="font-mono text-cyan-400 text-sm tracking-[0.35em] uppercase mb-4">
-                $ whoami
-              </p>
-
-              <h1 className="text-5xl sm:text-7xl md:text-8xl font-mono font-bold leading-none tracking-tight">
-                <GlitchText
-                  text={personalInfo.name}
-                  glitchOnMount
-                  className="text-white text-glow-cyan"
-                  as="span"
-                />
-              </h1>
-            </motion.div>
-
-            {/* Titre */}
-            <motion.div
-              className="mt-6 mb-5"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0  }}
-              transition={{ delay: 0.35, duration: 0.6 }}
-            >
-              <span className="inline-block px-5 py-2 border border-purple-500/40 bg-purple-500/10 rounded-lg font-mono text-purple-300 text-sm sm:text-base tracking-widest">
-                {personalInfo.title}
-              </span>
-            </motion.div>
-
-            {/* Tagline */}
-            <motion.p
-              className="text-slate-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mt-2 mb-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0  }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-            >
-              {personalInfo.tagline}
-            </motion.p>
-
-            {/* Boutons CTA */}
-            <motion.div
-              className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0  }}
-              transition={{ delay: 0.65, duration: 0.6 }}
-            >
-              <motion.a
-                href={personalInfo.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 bg-[#141F35] border border-slate-600/60 hover:border-cyan-400/60 text-slate-300 hover:text-cyan-400 font-mono text-sm rounded-lg transition-all duration-300"
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Github size={15} />
-                GitHub
-              </motion.a>
-
-              <motion.a
-                href={personalInfo.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 bg-[#141F35] border border-slate-600/60 hover:border-purple-400/60 text-slate-300 hover:text-purple-400 font-mono text-sm rounded-lg transition-all duration-300"
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Linkedin size={15} />
-                LinkedIn
-              </motion.a>
-
-              <motion.a
-                href={personalInfo.cv}
-                download
-                className="flex items-center gap-2 px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-[#030712] font-mono text-sm font-bold rounded-lg transition-all duration-300"
-                whileHover={{ scale: 1.04, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <FileDown size={15} />
-                Télécharger CV
-              </motion.a>
-            </motion.div>
-
-            {/* Indicateur de scroll */}
-            <motion.div
-              className="mt-20 flex flex-col items-center gap-2 text-slate-600"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-            >
-              <span className="font-mono text-[10px] tracking-[0.3em] uppercase">scroll</span>
-              <motion.div
-                animate={{ y: [0, 6, 0] }}
-                transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-              >
-                <ArrowDown size={14} />
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Coins décoratifs ── */}
-      {['top-8 left-8 border-l-2 border-t-2', 'top-8 right-8 border-r-2 border-t-2',
-        'bottom-8 left-8 border-l-2 border-b-2', 'bottom-8 right-8 border-r-2 border-b-2'
-      ].map((cls, i) => (
-        <div key={i} className={`absolute w-10 h-10 border-cyan-400/20 ${cls}`} />
+            {word}
+          </motion.span>
+        </span>
       ))}
-    </section>
+    </h1>
   )
 }
+
+/** Formes géométriques flottantes en fond */
+const FloatingShapes = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+    {/* Blobs couleur */}
+    <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.10]
+                   bg-cyan-500 blur-[110px] animate-blob" />
+    <div className="absolute top-1/2 -right-40 w-[420px] h-[420px] rounded-full opacity-[0.09]
+                   bg-violet-600 blur-[100px] animate-blob animation-delay-4000" />
+    <div className="absolute -bottom-20 left-1/3 w-[320px] h-[320px] rounded-full opacity-[0.07]
+                   bg-cyan-400 blur-[90px] animate-blob animation-delay-2000" />
+
+    {/* Cercles filaires animés */}
+    <motion.div
+      className="absolute top-[15%] right-[8%] w-48 h-48 rounded-full border border-cyan-400/10"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+    />
+    <motion.div
+      className="absolute top-[15%] right-[8%] w-36 h-36 m-6 rounded-full border border-purple-400/10"
+      animate={{ rotate: -360 }}
+      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+    />
+    <motion.div
+      className="absolute bottom-[20%] left-[6%] w-32 h-32 rounded-full border border-cyan-400/8"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+    />
+
+    {/* Points décoratifs */}
+    {[
+      { top: '20%', left: '20%', delay: 0 },
+      { top: '60%', left: '85%', delay: 1 },
+      { top: '80%', left: '25%', delay: 2 },
+      { top: '35%', left: '70%', delay: 0.5 },
+    ].map((pos, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 rounded-full bg-cyan-400/40"
+        style={{ top: pos.top, left: pos.left }}
+        animate={{ opacity: [0.2, 0.8, 0.2], scale: [1, 1.4, 1] }}
+        transition={{ duration: 3, delay: pos.delay, repeat: Infinity, ease: 'easeInOut' }}
+      />
+    ))}
+  </div>
+)
+
+const Hero = () => (
+  <section
+    id="hero"
+    className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#09090B]"
+  >
+    <FloatingShapes />
+
+    {/* Ligne top */}
+    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
+
+    {/* Contenu principal */}
+    <motion.div
+      className="relative z-10 text-center px-4 max-w-4xl mx-auto w-full"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
+      {/* Badge dispo */}
+      {personalInfo.available && (
+        <motion.div variants={fadeUp} className="flex justify-center mb-8">
+          <motion.span
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium
+                       bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 cursor-default"
+            whileHover={{ scale: 1.04 }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Disponible pour de nouvelles opportunités
+          </motion.span>
+        </motion.div>
+      )}
+
+      {/* Localisation */}
+      <motion.div variants={fadeUp} className="flex justify-center mb-6">
+        <span className="inline-flex items-center gap-1.5 text-xs text-zinc-500">
+          <MapPin size={11} />
+          {personalInfo.location}
+        </span>
+      </motion.div>
+
+      {/* Nom — animation masque mot par mot */}
+      <AnimatedName name={personalInfo.name} />
+
+      {/* Titre */}
+      <motion.div variants={fadeUp} className="mb-6">
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                         bg-white/[0.04] border border-white/[0.08] text-slate-300
+                         text-sm sm:text-base font-medium tracking-wide">
+          {personalInfo.title}
+        </span>
+      </motion.div>
+
+      {/* Accroche */}
+      <motion.p
+        variants={fadeUp}
+        className="text-zinc-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-10"
+      >
+        {personalInfo.tagline}
+      </motion.p>
+
+      {/* Boutons CTA */}
+      <motion.div
+        variants={fadeUp}
+        className="flex flex-wrap items-center justify-center gap-3"
+      >
+        {[
+          { href: personalInfo.github,   icon: Github,   label: 'GitHub',   variant: 'ghost' },
+          { href: personalInfo.linkedin, icon: Linkedin, label: 'LinkedIn', variant: 'ghost' },
+        ].map(({ href, icon: Icon, label, variant }) => (
+          <motion.a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg
+                       bg-white/[0.05] border border-white/[0.08] text-zinc-300
+                       hover:bg-white/[0.09] hover:border-white/[0.16] hover:text-white
+                       text-sm font-medium transition-all duration-200"
+            whileHover={{ y: -2, scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <Icon size={15} />
+            {label}
+          </motion.a>
+        ))}
+
+        <motion.a
+          href={personalInfo.cv}
+          download
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg
+                     bg-cyan-500 hover:bg-cyan-400 text-zinc-900
+                     text-sm font-semibold transition-all duration-200
+                     shadow-lg shadow-cyan-500/25"
+          whileHover={{ y: -2, scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <FileDown size={15} />
+          Télécharger CV
+        </motion.a>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        variants={fadeUp}
+        className="mt-20 flex flex-col items-center gap-2 text-zinc-600"
+      >
+        <motion.div
+          animate={{ y: [0, 6, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+        >
+          <ArrowDown size={16} />
+        </motion.div>
+      </motion.div>
+    </motion.div>
+
+    {/* Ligne bottom */}
+    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
+  </section>
+)
 
 export default Hero

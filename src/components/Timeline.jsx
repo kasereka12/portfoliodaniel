@@ -65,7 +65,7 @@ const EntryCard = ({ entry, cfg, index, side = 'left' }) => {
   const Icon = cfg.icon
   return (
     <motion.div
-      className={`bg-[#0B1120] border ${cfg.borderColor} ${cfg.hoverBorder}
+      className={`bg-zinc-900 border ${cfg.borderColor} ${cfg.hoverBorder}
         rounded-2xl p-5 transition-all duration-300 hover:shadow-xl`}
       initial={{ opacity: 0, x: side === 'left' ? -30 : 30 }}
       whileInView={{ opacity: 1, x: 0 }}
@@ -105,7 +105,7 @@ const EntryCard = ({ entry, cfg, index, side = 'left' }) => {
 }
 
 const Timeline = () => (
-  <section id="timeline" className="py-24 px-4 bg-[#050B18] relative overflow-hidden">
+  <section id="timeline" className="py-24 px-4 bg-[#09090B] relative overflow-hidden">
     <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
 
     <div className="max-w-5xl mx-auto relative">
